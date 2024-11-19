@@ -11,7 +11,7 @@ import FormDatePicker from "../shared/form/datePicker";
 import FormInputSelect from "../shared/form/FormInputSelect";
 import { bloodGroupOptions, genderOptions } from "../doctors-list";
 
-const BookSlot = ({ handleClose, doctorEmail }) => {
+const BookSlot = ({ handleClose, doctorEmail = "" }) => {
   const {
     control,
     handleSubmit,
@@ -20,11 +20,11 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
   } = useForm({
     resolver: yupResolver(SlotBookFormValidation),
     defaultValues: {
-      doctorEmail: doctorEmail,
+      doctorEmail: doctorEmail || "",
       fName: "",
       lName: "",
       gender: "",
-      date: "",
+      date: null, // Use null for the date picker to start controlled
       age: "",
       mobile: "",
       fatherName: "",
@@ -32,10 +32,9 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
       email: "",
       bloodGroup: "",
       maritalStatus: "",
+      patientDescription: "", // Include this to ensure consistency
     },
   });
-
-  console.log("errors", errors); // To debug form errors
 
   const [slotData, setSlotData] = useState([]);
 
@@ -46,13 +45,11 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
   }, []);
 
   const onSubmit = (data) => {
-    // Check for validation errors
     if (Object.keys(errors).length > 0) {
       console.log("Form has errors:", errors);
       return;
     }
 
-    // If form is valid, proceed to save the data
     const updatedSlotData = [...slotData, data];
     setSlotData(updatedSlotData);
 
@@ -70,30 +67,28 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="modal-heading">
           <Typography className="font-semibold" variant="h5">
-          Book your appointment
+            Book your appointment
           </Typography>
           <CloseIcon onClick={handleClose} className="text-end" />
         </div>
         <FormInput
-          className="mt-10"
+          className="doctor-email"
           control={control}
           name="doctorEmail"
           label="Doctor Email"
           errors={errors}
-          defaultValue={doctorEmail || ""}
+          defaultValue={doctorEmail}
           InputProps={{ readOnly: true }}
         />
-        <div className="!mt-10">
+        <div className="">
           <div className="form-fields">
             <FormInput
-              className="mb-10"
               control={control}
               name="fName"
               label="First Name"
               errors={errors}
             />
             <FormInput
-              className="mb-10"
               control={control}
               name="lName"
               label="Last Name"
@@ -102,7 +97,6 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
           </div>
           <div className="form-fields">
             <FormInputSelect
-              className="mb-10 w-full"
               control={control}
               name="gender"
               label="Gender"
@@ -111,7 +105,6 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
             />
             <FormDatePicker
               errors={errors}
-              className="mb-10"
               control={control}
               name="date"
               label="Select Date"
@@ -119,7 +112,6 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
           </div>
           <div className="form-fields">
             <FormInput
-              className="mb-10"
               control={control}
               inputType="number"
               name="age"
@@ -127,7 +119,6 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
               errors={errors}
             />
             <FormInput
-              className="mb-10"
               control={control}
               name="mobile"
               inputType="tel"
@@ -137,14 +128,12 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
           </div>
           <div className="form-fields">
             <FormInput
-              className="mb-10"
               control={control}
               name="fatherName"
               label="Father Name"
               errors={errors}
             />
             <FormInput
-              className="mb-10"
               control={control}
               name="motherName"
               label="Mother Name"
@@ -153,30 +142,28 @@ const BookSlot = ({ handleClose, doctorEmail }) => {
           </div>
           <div className="form-fields">
             <FormInput
-              className="mb-10"
               control={control}
               name="email"
               label="Email"
               errors={errors}
             />
             <FormInputSelect
-              className="mb-10"
               control={control}
-              options={bloodGroupOptions} // Pass the gender options array
+              options={bloodGroupOptions}
               name="bloodGroup"
               label="Blood Group"
               errors={errors}
             />
           </div>
-            <FormInput
-              className="mb-10"
-              placeholder="Write Your Message Here..."
-              control={control}
-              name="message"
-              label="Message"
-              errors={errors}
-            />
-          </div>
+          <FormInput
+            className="message"
+            placeholder="Write Your Message Here..."
+            control={control}
+            name="patientDescription"
+            label="Patient Description"
+            errors={errors}
+          />
+        </div>
         <Button type="submit" className="book-slot">
           Submit
         </Button>

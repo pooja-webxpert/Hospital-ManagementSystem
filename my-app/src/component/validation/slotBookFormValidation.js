@@ -31,5 +31,5 @@ export const SlotBookFormValidation = Yup.object().shape({
     .email("Invalid email format")
     .required("Email is required"),
   bloodGroup: Yup.string().required("Blood Group is required"),
- message: Yup.string().required("Message is required"),
+  patientDescription: Yup.string().required("Patient Description is required"),
 });

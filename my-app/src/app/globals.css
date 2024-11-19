@@ -25,10 +25,11 @@
   border: 1px solid rgb(188, 192, 194) !important;
 }
 .modal-heading {
-  display: flex;
-  justify-content: space-between;
+  display: flex!important;
+  justify-content: space-between!important;
 }
 .form-fields {
+  margin-bottom: 4%;
   display: flex;
   gap: 3%;
 }
@@ -47,7 +48,7 @@
 }
 .header-email {
   color: #060606;
-  padding-right: 20px;
+  padding-right: 15px;
 }
 .logout-button {
   border: 1px solid black !important;
@@ -71,4 +72,42 @@
 }
 .css-7mxpdy-MuiPaper-root-MuiAppBar-root {
   background-color: #f1f5f9 !important;
+}
+.css-1rod9u0 {
+  background-color: #f1f5f9 !important;
+}
+.css-157ayuk {
+  background-color: #f1f5f9 !important;
+}
+.MuiToolbar-root.MuiToolbar-gutters.MuiToolbar-regular.css-awgou1{
+  justify-content: space-between!important;
+}
+.message{
+  margin-bottom: 4%!important;
+}
+.doctor-email{
+  margin:  4% 0 !important;
+}
+.redirect-home{
+  margin-right: 15px;
+  color: #060606;
+  text-decoration: underline;
+}
+.redirect-home:hover{
+ color: #0778f7;
+}
+.css-32fwiz-MuiButtonBase-root-MuiListItemButton-root {
+  gap: 10px!important;
+}
+.action-icon:hover{
+  background-color: #24b33c;
+  color: #f1f5f9!important;
+}
+.cancel-icon:hover{
+  background-color: #ec4747;
+  color: #f1f5f9!important;
+}
+.patient-descri:hover{
+  text-decoration: underline;
+  color:#2982e7;
 }

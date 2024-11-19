@@ -1,13 +1,27 @@
-"use client";
+'use client'
 import MiniDrawer from "@/component/drawer/drawer";
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState } from "react";
 
-export default function RootLayout({ children }) {
+const Layout = ({ children }) => {
+  // Initialize toggle state
+  const [toggle, setToggle] = useState(false);
+
+  // Example function to toggle state
+  const handleToggle = () => {
+    // Check if toggle is not undefined
+    if (typeof toggle !== "undefined") {
+      setToggle(!toggle);
+    }
+  };
+
   return (
-    <>
-      <MiniDrawer>{children}</MiniDrawer>
-      <ToastContainer />
-    </>
+    <div>
+      <button onClick={handleToggle}>Toggle</button>
+      <MiniDrawer>
+   {children}
+      </MiniDrawer>
+    </div>
   );
-}
+};
+
+export default Layout;

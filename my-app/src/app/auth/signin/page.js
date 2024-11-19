@@ -101,7 +101,7 @@ const Login = () => {
               </div>
               <div className="text-center mt-10">
                 <Typography>
-                  Don't have an account?
+                  Dont have an account?
                   <Link href={routesUrl.signUp}>
                     <span className="hover:underline hover:text-red-800"> Sign Up</span>
                   </Link>

@@ -12,7 +12,7 @@ import InputField from "@/component/shared/form/InputField";
 import { routesUrl } from "@/utils/pagesurl";
 import { SignUpValidation } from "@/component/validation/signUpValidation";
 import { errorMsg, successMsg } from "@/component/shared/form/Toastmsg/toaster";
-import RegisteredEmail, { checkUserExists, saveNewUser } from "@/component/shared/form/registered-already-exist";
+import { checkUserExists, saveNewUser } from "@/component/shared/form/registered-already-exist";
 
 const SignUpForm = () => {
   const {

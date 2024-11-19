@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -26,7 +26,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -85,22 +84,27 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-
 const menuItems = [
   {
     title: "Dashboard",
     icon: <DashboardIcon />,
     subItems: [
-      { title: "Dashboard 1", icon: <DashboardIcon />, route: routesUrl.Dashboard },
-      { title: "Dashboard 2", icon: <DashboardIcon />, route: routesUrl.Dashboard2 },
+      {
+        title: "Dashboard 1",
+        icon: <DashboardIcon />,
+        route: routesUrl.Dashboard,
+      },
+      {
+        title: "Dashboard 2",
+        icon: <DashboardIcon />,
+        route: routesUrl.Dashboard2,
+      },
     ],
   },
   {
     title: "All Appointment",
     icon: <CalendarTodayIcon />,
-    subItems: [
-      { title: "All Appointment", icon: <CalendarTodayIcon />, route: routesUrl.AllAppointment },
-    ],
+    route: routesUrl.AllAppointment,
   },
   {
     title: "Test",
@@ -127,20 +131,53 @@ export default function MiniDrawer({ children }) {
   const handleItemClick = (index, subIndex) => {
     setSelectedIndex(index);
     setSelectedSubIndex(subIndex !== undefined ? subIndex : null);
-  };
 
-  const toggleCollapse = (index) => {
-    setOpenItems((prev) =>
-      prev.includes(index) ? prev.filter((item) => item !== index) : [...prev, index]
+    // Save to localStorage
+    localStorage.setItem("selectedIndex", index);
+    localStorage.setItem(
+      "selectedSubIndex",
+      subIndex !== undefined ? subIndex : null
     );
   };
+
+  // get data form localstorage
+  useEffect(() => {
+    const storedSelectedIndex = localStorage.getItem("selectedIndex");
+    const storedSelectedSubIndex = localStorage.getItem("selectedSubIndex");
+
+    if (storedSelectedIndex !== null) {
+      setSelectedIndex(parseInt(storedSelectedIndex, 10));
+    }
+    if (storedSelectedSubIndex !== null) {
+      setSelectedSubIndex(parseInt(storedSelectedSubIndex, 10));
+    }
+  }, []);
+
+  const toggleCollapse = (index) => {
+    setOpenItems((prev) => {
+      const updatedItems = prev.includes(index)
+        ? prev.filter((item) => item !== index)
+        : [...prev, index];
+      // Save updated state to localStorage
+      localStorage.setItem("openItems", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  };
+
+  //
+  useEffect(() => {
+    const storedOpenItems = localStorage.getItem("openItems");
+    if (storedOpenItems) {
+      setOpenItems(JSON.parse(storedOpenItems));
+    }
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
-          <div className="flex">
+          <div className="flex ">
             <IconButton
               color="inherit"
               aria-label="toggle drawer"
@@ -158,6 +195,12 @@ export default function MiniDrawer({ children }) {
             </Typography>
           </div>
           <div className="flex justify-center items-center">
+            <Link href="/">
+              <Typography className="redirect-home">
+                {" "}
+                Go To Home Page
+              </Typography>
+            </Link>
             <Typography className="header-email">
               Hello! {session?.user?.username}
             </Typography>
@@ -171,69 +214,31 @@ export default function MiniDrawer({ children }) {
         <List>
           {menuItems.map((item, index) => (
             <div key={index}>
-              <ListItem disablePadding onClick={() => toggleCollapse(index)}>
-                <ListItemButton
-                  selected={selectedIndex === index && selectedSubIndex === null}
-                  onClick={() => handleItemClick(index)}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    backgroundColor:
-                      selectedIndex === index && selectedSubIndex === null
-                        ? theme.palette.action.selected
-                        : "transparent",
-                    "&:hover": { backgroundColor: theme.palette.action.hover },
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        (selectedIndex === index && selectedSubIndex !== null) ||
-                        (selectedIndex === index && selectedSubIndex === null)
-                          ? theme.palette.primary.main
-                          : "inherit",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.title}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                  {item.subItems &&
-                    open &&
-                    (openItems.includes(index) ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    ))}
-                </ListItemButton>
-              </ListItem>
-              {item.subItems && (
-                <Collapse
-                  in={openItems.includes(index)}
-                  timeout="auto"
-                  unmountOnExit
-                >
-                  <List component="div" disablePadding>
-                    {item.subItems.map((subItem, subIndex) => (
-                      <Link href={subItem.route} key={subIndex}>
+              {item.route ? (
+                <>
+                  <Link href={item.route}>
+                    <div key={index}>
+                      <ListItem
+                        disablePadding
+                        onClick={() => toggleCollapse(index)}
+                      >
                         <ListItemButton
                           selected={
-                            selectedIndex === index && selectedSubIndex === subIndex
+                            selectedIndex === index && selectedSubIndex === null
                           }
-                          onClick={() => handleItemClick(index, subIndex)}
+                          onClick={() => handleItemClick(index)}
                           sx={{
-                            pl: open ? 6 : 4,
+                            minHeight: 48,
+                            justifyContent: open ? "initial" : "center",
+                            px: 2.5,
                             backgroundColor:
-                              selectedIndex === index && selectedSubIndex === subIndex
+                              selectedIndex === index &&
+                              selectedSubIndex === null
                                 ? theme.palette.action.selected
                                 : "transparent",
-                            "&:hover": { backgroundColor: theme.palette.action.hover },
+                            "&:hover": {
+                              backgroundColor: theme.palette.action.hover,
+                            },
                           }}
                         >
                           <ListItemIcon
@@ -242,19 +247,187 @@ export default function MiniDrawer({ children }) {
                               mr: open ? 3 : "auto",
                               justifyContent: "center",
                               color:
-                                selectedIndex === index && selectedSubIndex === subIndex
+                                (selectedIndex === index &&
+                                  selectedSubIndex !== null) ||
+                                (selectedIndex === index &&
+                                  selectedSubIndex === null)
                                   ? theme.palette.primary.main
                                   : "inherit",
                             }}
                           >
-                            {subItem.icon}
+                            {item.icon}
                           </ListItemIcon>
-                          <ListItemText primary={subItem.title} />
+                          <ListItemText
+                            primary={item.title}
+                            sx={{ opacity: open ? 1 : 0 }}
+                          />
+                          {item.subItems &&
+                            open &&
+                            (openItems.includes(index) ? (
+                              <ExpandMore />
+                            ) : (
+                              <ChevronLeftIcon />
+                            ))}
                         </ListItemButton>
-                      </Link>
-                    ))}
-                  </List>
-                </Collapse>
+                      </ListItem>
+                      {item.subItems && (
+                        <Collapse
+                          in={openItems.includes(index)}
+                          timeout="auto"
+                          unmountOnExit
+                        >
+                          <List component="div" disablePadding>
+                            {item.subItems.map((subItem, subIndex) => (
+                              <Link href={subItem.route} key={subIndex}>
+                                <ListItemButton
+                                  selected={
+                                    selectedIndex === index &&
+                                    selectedSubIndex === subIndex
+                                  }
+                                  onClick={() =>
+                                    handleItemClick(index, subIndex)
+                                  }
+                                  sx={{
+                                    pl: open ? 6 : 4,
+                                    backgroundColor:
+                                      selectedIndex === index &&
+                                      selectedSubIndex === subIndex
+                                        ? theme.palette.action.selected
+                                        : "transparent",
+                                    "&:hover": {
+                                      backgroundColor:
+                                        theme.palette.action.hover,
+                                    },
+                                  }}
+                                >
+                                  <ListItemIcon
+                                    sx={{
+                                      minWidth: 0,
+                                      mr: open ? 3 : "auto",
+                                      justifyContent: "center",
+                                      color:
+                                        selectedIndex === index &&
+                                        selectedSubIndex === subIndex
+                                          ? theme.palette.primary.main
+                                          : "inherit",
+                                    }}
+                                  >
+                                    {subItem.icon}
+                                  </ListItemIcon>
+                                  <ListItemText primary={subItem.title} />
+                                </ListItemButton>
+                              </Link>
+                            ))}
+                          </List>
+                        </Collapse>
+                      )}
+                    </div>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div key={index}>
+                    <ListItem
+                      disablePadding
+                      onClick={() => toggleCollapse(index)}
+                    >
+                      <ListItemButton
+                        selected={
+                          selectedIndex === index && selectedSubIndex === null
+                        }
+                        onClick={() => handleItemClick(index)}
+                        sx={{
+                          minHeight: 48,
+                          justifyContent: open ? "initial" : "center",
+                          px: 2.5,
+                          backgroundColor:
+                            selectedIndex === index && selectedSubIndex === null
+                              ? theme.palette.action.selected
+                              : "transparent",
+                          "&:hover": {
+                            backgroundColor: theme.palette.action.hover,
+                          },
+                        }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                            color:
+                              (selectedIndex === index &&
+                                selectedSubIndex !== null) ||
+                              (selectedIndex === index &&
+                                selectedSubIndex === null)
+                                ? theme.palette.primary.main
+                                : "inherit",
+                          }}
+                        >
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.title}
+                          sx={{ opacity: open ? 1 : 0 }}
+                        />
+                        {item.subItems &&
+                          open &&
+                          (openItems.includes(index) ? (
+                            <ExpandMore />
+                          ) : (
+                            <ChevronLeftIcon />
+                          ))}
+                      </ListItemButton>
+                    </ListItem>
+                    {item.subItems && (
+                      <Collapse
+                        in={openItems.includes(index)}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <List component="div" disablePadding>
+                          {item.subItems.map((subItem, subIndex) => (
+                            <Link href={subItem.route} key={subIndex}>
+                              <ListItemButton
+                                selected={
+                                  selectedIndex === index &&
+                                  selectedSubIndex === subIndex
+                                }
+                                onClick={() => handleItemClick(index, subIndex)}
+                                sx={{
+                                  pl: open ? 6 : 4,
+                                  backgroundColor:
+                                    selectedIndex === index &&
+                                    selectedSubIndex === subIndex
+                                      ? theme.palette.action.selected
+                                      : "transparent",
+                                  "&:hover": {
+                                    backgroundColor: theme.palette.action.hover,
+                                  },
+                                }}
+                              >
+                                <ListItemIcon
+                                  sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : "auto",
+                                    justifyContent: "center",
+                                    color:
+                                      selectedIndex === index &&
+                                      selectedSubIndex === subIndex
+                                        ? theme.palette.primary.main
+                                        : "inherit",
+                                  }}
+                                >
+                                  {subItem.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={subItem.title} />
+                              </ListItemButton>
+                            </Link>
+                          ))}
+                        </List>
+                      </Collapse>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           ))}
@@ -267,4 +440,3 @@ export default function MiniDrawer({ children }) {
     </Box>
   );
 }
-

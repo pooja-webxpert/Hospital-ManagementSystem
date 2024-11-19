@@ -12,12 +12,9 @@ const FilterAppointmentData = ({ localData,onFilterDate }) => {
     },
   });
   const selectedDate = watch("search-date");
-//   console.log("selectedDate", selectedDate);
   const handleSearchDate = () => {
     const filteredDateData = localData.filter(
       (data) =>{ 
-        console.log("data.date",data.date)
-        console.log("selectedDate",selectedDate)
        return data.date === selectedDate}
     );
     onFilterDate(filteredDateData)
