@@ -4,6 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { Button, Typography } from '@mui/material';
+import PatientHistory from '../patientHistory/patientHistory';
 
 function CustomTabPanel(props) {
   const { children, value, index } = props;
@@ -55,13 +56,13 @@ export default function PatientDetailsTabs({patientData}) {
         <Typography><strong>Date of Appointment:</strong> {patientData?.date}</Typography>
         <Typography><strong>Age:</strong> {patientData?.age}</Typography>
         <Typography><strong>Mobile:</strong> {patientData?.mobile}</Typography>
-        <Typography><strong>Father's Name:</strong> {patientData?.fatherName}</Typography>
+        <Typography><strong>Fathers Name:</strong> {patientData?.fatherName}</Typography>
         <Typography><strong>Blood Group:</strong> {patientData?.bloodGroup}</Typography>
         <Typography><strong>Email:</strong> {patientData?.email}</Typography>
         <Typography><strong>Patient Description:</strong> {patientData?.patientDescription}</Typography>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        
+      <PatientHistory/>
       </CustomTabPanel>
     </Box>
   );

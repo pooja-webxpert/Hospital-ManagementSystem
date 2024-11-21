@@ -3,6 +3,7 @@ import { FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/
 import { Controller } from "react-hook-form";
 
 const FormInputSelect = ({
+  value,
   name,
   control,
   label,
@@ -21,14 +22,16 @@ const FormInputSelect = ({
           defaultValue={defaultValue || ""}
           render={({ field }) => (
             <Select
+            value={value}
               label={label}
               id={name}
               {...field}
             >
-              {options?.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
+              {options?.map((option,index) => (
+                <MenuItem key={`${option.value}-${index}`} value={option.value}>
+                {option.label}
+              </MenuItem>
+              
               ))}
             </Select>
           )}

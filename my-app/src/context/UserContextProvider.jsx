@@ -7,7 +7,9 @@ const UserContextProvider = ({ children }) => {
 
   const [selectedPatient, setSelectedPatient] = useState(null);
 
-
+useEffect(()=>{
+  localStorage.setItem("selectedPatient",JSON.stringify(selectedPatient))
+})
 
   return (
     <UserContext.Provider

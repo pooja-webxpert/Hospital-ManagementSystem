@@ -6,6 +6,7 @@ import { Controller } from "react-hook-form";
 import dayjs from "dayjs";
 
 export default function FormDatePicker({
+  value,
   name,
   control,
   label,
@@ -30,6 +31,7 @@ export default function FormDatePicker({
               }}
               renderInput={(params) => (
                 <TextField
+                value={value}
                   {...params}
                   error={!!errors?.[name]} // The error prop will turn the field red
                   helperText={errors?.[name]?.message} // Show error message under the field
