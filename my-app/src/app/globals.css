@@ -113,10 +113,11 @@
 }
 .delete-icon {
   display: flex;
+  margin: 8px 0px;
   justify-content: center;
   align-items: center;
-  width: 15%;
-  height: 37px;
+  width: 23%;
+  height: 35px;
   color: rgb(231, 37, 37);
   border: 1px solid rgb(231, 37, 37);
   padding: 2px;
@@ -126,13 +127,13 @@
   color: white;
 }
 .edit-icon {
-  padding: 1px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 15%;
-  height: 37px;
+  width: 23%;
+  height: 35px;
   color: rgb(38, 133, 50);
+  margin: 8px 0px;
   border: 1px solid rgb(38, 133, 50);
 }
 .edit-icon:hover {
@@ -141,4 +142,18 @@
 }
 .css-19kzrtu {
   padding: 24px 0!important;
+}
+table,tr,th,td{
+  border: 1px solid rgb(128, 123, 123);
+}
+table{
+  text-align: center;
+  /* width: 100%; */
+}
+
+td{
+  height: 58px;
+}
+.iconbutton{
+  margin: 8px 0px;
 }

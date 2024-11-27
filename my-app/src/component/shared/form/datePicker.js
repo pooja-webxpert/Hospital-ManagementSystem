@@ -27,14 +27,14 @@ export default function FormDatePicker({
               value={field.value ? dayjs(field.value, "DD/MM/YYYY") : null}
               placeholder={placeholder}
               onChange={(date) => {
-                field.onChange(date ? date.format("DD/MM/YYYY") : null); // Ensure correct format
+                field.onChange(date ? date.format("DD/MM/YYYY") : null); 
               }}
               renderInput={(params) => (
                 <TextField
                 value={value}
                   {...params}
-                  error={!!errors?.[name]} // The error prop will turn the field red
-                  helperText={errors?.[name]?.message} // Show error message under the field
+                  error={!!errors?.[name]} 
+                  helperText={errors?.[name]?.message} 
                 />
               )}
             />
