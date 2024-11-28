@@ -37,6 +37,7 @@
     "react-hook-form": "^7.53.1",
     "react-toastify": "^10.0.6",
     "styled-components": "^6.1.13",
+    "use-local-storage": "^3.0.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {

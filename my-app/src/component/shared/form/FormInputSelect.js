@@ -10,14 +10,14 @@ const FormInputSelect = ({
   options,
   errors,
   defaultValue,
-  className,
+  className
 }) => {
   return (
     <>
       <FormControl fullWidth className={className} error={!!errors?.[name]}>
         <InputLabel>{label}</InputLabel>
         <Controller
-          name={name}
+          name={name} 
           control={control}
           defaultValue={defaultValue || ""}
           render={({ field }) => (

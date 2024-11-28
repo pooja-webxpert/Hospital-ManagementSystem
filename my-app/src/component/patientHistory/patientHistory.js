@@ -1,13 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Button,
+  Tooltip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Tooltip,
 } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { useForm } from "react-hook-form";
 import FormInputSelect from "../shared/form/FormInputSelect";
 import FormDatePicker from "../shared/form/datePicker";
@@ -16,230 +17,283 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import UserContext from "@/context/UserContext";
+import useLocalStorage from "use-local-storage";
+import { PatientHistoryValidation } from "../validation/patientHistoryValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const PatientHistory = () => {
   const { selectedPatient } = useContext(UserContext);
-  const { control, handleSubmit } = useForm();
-  const [formRows, setFormRows] = useState([]);
+  const { control, handleSubmit, setValue, reset ,formState: { errors },} = useForm({
+    resolver: yupResolver(PatientHistoryValidation),
+    defaultValues: {
+      treatment: "",
+      medicine: "",
+      startDate: "",
+      endDate: "",
+    },
+  });
+
+  const [formRows, setFormRows] = useLocalStorage("formRows", [
+    {
+      id: Date.now(),
+      treatment: "",
+      medicine: "",
+      startDate: null,
+      endDate: null,
+      isEditing: true, // Initially editing
+    },
+  ]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
-  // Fetch and initialize form rows from localStorage
-  useEffect(() => {
-    const localData = JSON.parse(localStorage.getItem("formRows"));
-    if (localData) {
-      setFormRows(localData);
-    } else {
-      setFormRows([
-        {
-          id: Date.now(),
-          data: { treatment: "", medicine: "", startDate: null, endDate: null },
-          isEditing: true,
-        },
-      ]);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (formRows.length > 0) {
-      localStorage.setItem("formRows", JSON.stringify(formRows));
-    }
-  }, [formRows]);
-
-  // Add new row
   const handleAdd = () => {
     const newId = Date.now();
     setFormRows((prev) => [
       ...prev,
       {
         id: newId,
-        data: { treatment: "", medicine: "", startDate: null, endDate: null },
+        treatment: "",
+        medicine: "",
+        startDate: null,
+        endDate: null,
         isEditing: true,
       },
     ]);
+    reset();
   };
 
-  // Open delete confirmation modal
   const handleOpenDeleteModal = (id) => {
     setSelectedRowId(id);
     setDeleteModalOpen(true);
   };
 
-  // Close delete modal
   const handleCloseDeleteModal = () => {
     setDeleteModalOpen(false);
     setSelectedRowId(null);
   };
 
-  // Confirm delete
   const handleConfirmDelete = () => {
     const updatedRows = formRows.filter((row) => row.id !== selectedRowId);
     setFormRows(updatedRows);
+
+    // If the rows are empty after deletion, add a new empty row
+    if (updatedRows.length === 0) {
+      const newId = Date.now();
+      setFormRows([
+        {
+          id: newId,
+          treatment: "",
+          medicine: "",
+          startDate: null,
+          endDate: null,
+          isEditing: true,
+        },
+      ]);
+      reset();
+    }
+
     handleCloseDeleteModal();
   };
 
-  // Save a specific row
-  const handleSaveRow = (index, formData) => {
+  const handleSaveRow = (id, formData) => {
     setFormRows((prevRows) =>
-      prevRows.map((row, i) =>
-        i === index
+      prevRows.map((row) =>
+        row.id === id
           ? {
               ...row,
-              data: {
-                treatment: formData.treatment || row.data.treatment,
-                medicine: formData.medicine || row.data.medicine,
-                startDate: formData.startDate || row.data.startDate,
-                endDate: formData.endDate || row.data.endDate,
-              },
-              isEditing: false,
+              treatment: formData.treatment || row.treatment,
+              medicine: formData.medicine || row.medicine,
+              startDate: formData.startDate || row.startDate,
+              endDate: formData.endDate || row.endDate,
+              isEditing: false, // After saving, set to false (not editing)
             }
           : row
       )
     );
   };
 
-  // Edit row
-  const handleEdit = (index) => {
+  const handleEdit = (id) => {
     const updatedRows = [...formRows];
-    updatedRows[index].isEditing = true;
-    setFormRows(updatedRows);
+    const rowIndex = updatedRows.findIndex((row) => row.id === id);
+
+    if (rowIndex !== -1) {
+      updatedRows[rowIndex].isEditing = true; // Set row to edit mode
+      setFormRows(updatedRows);
+
+      const currentRow = updatedRows[rowIndex];
+      setValue("treatment", currentRow.treatment);
+      setValue("medicine", currentRow.medicine);
+      setValue("startDate", currentRow.startDate);
+      setValue("endDate", currentRow.endDate);
+    }
   };
+
+  const columns = [
+    {
+      className:"headerName",
+      field: "treatment",
+      headerName: "Treatment",
+      width: 270,
+      renderCell: (params) =>
+        params.row.isEditing ? (
+          <FormInputSelect
+          errors={errors}
+            control={control}
+            label="Treatment"
+            options={TreatmentDetails}
+            name={`treatment`}
+            className="custom-input"
+          />
+        ) : (
+          params.row.treatment
+        ),
+    },
+    {
+      field: "medicine",
+      headerName: "Medicine",
+      width: 250,
+      renderCell: (params) =>
+        params.row.isEditing ? (
+          <FormInputSelect
+          errors={errors}
+
+            control={control}
+            label="Medicine"
+            options={Medicines}
+            name={`medicine`}
+            className="custom-input"
+          />
+        ) : (
+          params.row.medicine
+        ),
+    },
+    {
+      field: "startDate",
+      headerName: "Start Date",
+      width: 180,
+      renderCell: (params) =>
+        params.row.isEditing ? (
+          <FormDatePicker
+            control={control}
+          errors={errors}
+            label="Start Date"
+            name={`startDate`}
+            className="custom-input"
+          />
+        ) : (
+          params.row.startDate
+        ),
+    },
+    {
+      field: "endDate",
+      headerName: "End Date",
+      width: 170,
+      renderCell: (params) =>
+        params.row.isEditing ? (
+          <FormDatePicker
+          errors={errors}
+            control={control}
+            label="End Date"
+            name={`endDate`}
+            className="custom-input"
+          />
+        ) : (
+          params.row.endDate
+        ),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 150,
+      renderCell: (params) => {
+        // Check if the current row is the first row (index 0)
+        const isFirstRow = params.row.id === formRows[0]?.id;
+
+        return (
+          <>
+            {params.row.isEditing ? (
+              <div className="flex gap-2">
+                <Tooltip title="Save">
+                  <Button
+                    variant="contained"
+                    className="edit-icon rounded-full"
+                    onClick={handleSubmit((formData) =>
+                      handleSaveRow(params.row.id, formData)
+                    )}
+                  >
+                    <SaveIcon />
+                  </Button>
+                </Tooltip>
+                {/* Show the delete icon only if it's not the first row is add */}
+                {!isFirstRow && (
+                  <Tooltip title="Delete">
+                    <Button
+                      variant="outlined"
+                      className="delete-icon rounded-full"
+                      onClick={() => handleOpenDeleteModal(params.row.id)}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </Tooltip>
+                )}
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Tooltip title="Edit">
+                  <Button
+                  className="edit-icon rounded-full"
+                    variant="outlined"
+                    onClick={() => handleEdit(params.row.id)}
+                  >
+                    <EditIcon />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <Button
+                    variant="outlined"
+                    className="delete-icon rounded-full"
+                    onClick={() => handleOpenDeleteModal(params.row.id)}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                </Tooltip>
+              </div>
+            )}
+          </>
+        );
+      },
+    },
+  ];
 
   return (
     <>
-      <div className="mb-10">
-        <Button onClick={handleAdd} variant="contained">
-          Add {selectedPatient?.fName} {selectedPatient?.lName} Prescription
-        </Button>
-      </div>
-      <table className="w-full" style={{ tableLayout: "fixed" }}>
-        <thead>
-          <tr>
-            <th style={{ width: "25%" }}>Treatment</th>
-            <th style={{ width: "25%" }}>Medicine</th>
-            <th style={{ width: "15%" }}>Start Date</th>
-            <th style={{ width: "15%" }}>End Date</th>
-            <th style={{ width: "15%" }}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formRows.map((row, index) => (
-            <tr key={row.id}>
-              <td>
-                {row.isEditing ? (
-                  <FormInputSelect
-                    control={control}
-                    label="Treatment"
-                    options={TreatmentDetails}
-                    name={`patientHistory[${index}].treatment`}
-                  />
-                ) : (
-                  row.data.treatment
-                )}
-              </td>
-              <td>
-                {row.isEditing ? (
-                  <FormInputSelect
-                    control={control}
-                    label="Medicines"
-                    options={Medicines}
-                    name={`patientHistory[${index}].medicine`}
-                  />
-                ) : (
-                  row.data.medicine
-                )}
-              </td>
-              <td>
-                {row.isEditing ? (
-                  <FormDatePicker
-                  label="Start Date"
-                    control={control}
-                    name={`patientHistory[${index}].startDate`}
-                  />
-                ) : (
-                  row.data.startDate
-                )}
-              </td>
-              <td>
-                {row.isEditing ? (
-                  <FormDatePicker
-                    control={control}
-                    label="End Date"
-                    name={`patientHistory[${index}].endDate`}
-                  />
-                ) : (
-                  row.data.endDate
-                )}
-              </td>
-              {index !== 0 ? (
-                <td className="flex justify-center items-center gap-2">
-                  {row.isEditing ? (
-                    <Tooltip title="Save" placement="left-start">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit((formData) =>
-                          handleSaveRow(index, formData.patientHistory[index])
-                        )}
-                      >
-                        <SaveIcon />
-                      </Button>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title="Edit" placement="left-start">
-                      <div
-                        className="border rounded-full edit-icon"
-                        onClick={() => handleEdit(index)}
-                      >
-                        <EditIcon />
-                      </div>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Delete" placement="right-start">
-                    <div
-                      className="rounded-full delete-icon"
-                      onClick={() => handleOpenDeleteModal(row.id)}
-                    >
-                      <DeleteIcon />
-                    </div>
-                  </Tooltip>
-                </td>
-              ) : (
-                <>
-                 <td className="flex justify-center items-center gap-2">
-                   {row.isEditing ? (
-                    <Tooltip title="Save" placement="left-start">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit((formData) =>
-                          
-                          handleSaveRow(index, formData.patientHistory[index])
-                        )}
-                      >
-                        <SaveIcon />
-                      </Button>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title="Edit" placement="left-start">
-                      <div
-                        className="border rounded-full edit-icon"
-                        onClick={() => handleEdit(index)}
-                      >
-                        <EditIcon />
-                      </div>
-                    </Tooltip>
-                    
-                  )}
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Button className="add-row" onClick={handleAdd} variant="contained">
+        Add {selectedPatient?.fName} {selectedPatient?.lName} Prescription
+      </Button>
+      <div style={{ height: 400, width: "100%", marginTop: "15px" }}>
+      <DataGrid
+  style={{
+    margin: "10px",
+    fontSize: "16px",
+  }}
+  rows={formRows}
+  columns={columns}
+  pageSize={5}
+  disableSelectionOnClick
+  getRowHeight={() => 80} // Adjust row height
+  sx={{
+    '& .MuiDataGrid-cell': {
+      alignItems: 'center', // Align content vertically
+    },
+    '& .custom-input': {
+      width: '100%', // Ensure inputs span the cell width
+    },
+    fontSize: '1rem', // Adjust font size for readability
+  }}
+/>
 
-      {/* Delete Confirmation Modal */}
+      </div>
+
       <Dialog open={deleteModalOpen} onClose={handleCloseDeleteModal}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
@@ -248,10 +302,8 @@ const PatientHistory = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteModal} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+          <Button onClick={handleCloseDeleteModal}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="primary">
             Delete
           </Button>
         </DialogActions>
