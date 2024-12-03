@@ -15,9 +15,9 @@ export const SlotBookFormValidation = Yup.object().shape({
   gender: Yup.string().required("Gender is required"),
   date: Yup.string()
     .required("Date is required")
-    .test("is-valid-date", "Date must be in DD/MM/YYYY format", (value) => {
+    .test("is-valid-date", "Date must be in MM/DD/YYYY format", (value) => {
       // Check if value exists and if it's a valid date in DD/MM/YYYY format
-      return value ? dayjs(value, "DD/MM/YYYY", true).isValid() : false;
+      return value ? dayjs(value, "MM/DD/YYYY", true).isValid() : false;
     }),
   age: Yup.number()
     .required("Age is required")

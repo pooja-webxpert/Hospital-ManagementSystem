@@ -31,7 +31,6 @@ const AcceptAppointmentForm = ({ handleClose, patientData }) => {
   }, []);
 
   const onSubmit = (data) => {
-  console.log("data",data)
     successMsg("Appointment is accepted.");
     handleClose();
     reset();

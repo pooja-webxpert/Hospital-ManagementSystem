@@ -52,6 +52,10 @@ const DoctorsList = [
 ];
 
 export default DoctorsList;
+export const ActionList = [
+  { value: "Accept", label: "Accept" },
+  { value: "Pending", label: "Pending" },
+];
 export const genderOptions = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },

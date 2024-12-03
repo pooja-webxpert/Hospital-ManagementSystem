@@ -99,12 +99,8 @@
 .css-32fwiz-MuiButtonBase-root-MuiListItemButton-root {
   gap: 10px !important;
 }
-.action-icon:hover {
+.edit-icon:hover {
   background-color: #24b33c;
-  color: #f1f5f9 !important;
-}
-.cancel-icon:hover {
-  background-color: #ec4747;
   color: #f1f5f9 !important;
 }
 .patient-descri:hover {
@@ -149,7 +145,6 @@ table,tr,th,td{
 }
 table{
   text-align: center;
-  /* width: 100%; */
 }
 
 td{
@@ -169,18 +164,10 @@ td{
 .MuiDataGrid-cell.MuiDataGrid-cell--textLeft {
   padding: 10px!important;
 }
-.headerName{
-  font-size: 20px;
-}
+
 .MuiDataGrid-row--borderBottom.css-yseucu-MuiDataGrid-columnHeaderRow {
-  font-size: 19px;
+  font-size: 16px;
 }
-/* .custom-input {
-  display: flex;
-  align-items: center;
-  height: 40px;
-  width: 100%;
-} */
 
 .edit-icon, .delete-icon {
   display: flex;
@@ -190,5 +177,16 @@ td{
 
 .MuiDataGrid-cell {
   display: flex;
-  align-items: center; /* Vertically aligns content */
+  align-items: center; 
+}
+.active-action {
+  color: rgb(14, 139, 14)!important;
+  border: 1px solid green;
+  background-color: #e6f7e6;
+}
+
+.pending-action {
+  color:#faf4f4;
+  border: 1px solid #ec4747;
+  background-color: #e6f7e6;
 }

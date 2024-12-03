@@ -12,7 +12,6 @@ export default function FormDatePicker({
   label,
   errors,
   className,
-  placeholder,
 }) {
   return (
     <FormControl fullWidth error={!!errors?.[name]} className={className}>
@@ -24,17 +23,15 @@ export default function FormDatePicker({
             <DatePicker
               {...field}
               label={label}
-              value={field.value ? dayjs(field.value, "DD/MM/YYYY") : null}
-              placeholder={placeholder}
+              value={field.value ? dayjs(field.value, "MM/DD/YYYY") : null}
               onChange={(date) => {
-                field.onChange(date ? date.format("DD/MM/YYYY") : null); 
+                field.onChange(date ? date.format("MM/DD/YYYY") : null);
               }}
               renderInput={(params) => (
                 <TextField
-                value={value}
                   {...params}
-                  error={!!errors?.[name]} 
-                  helperText={errors?.[name]?.message} 
+                  error={!!errors?.[name]}
+                  helperText={errors?.[name]?.message}
                 />
               )}
             />
@@ -44,3 +41,4 @@ export default function FormDatePicker({
     </FormControl>
   );
 }
+

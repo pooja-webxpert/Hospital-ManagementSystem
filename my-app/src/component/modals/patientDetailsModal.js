@@ -2,7 +2,6 @@ import React from "react";
 import { Modal, Typography, Box, Button } from "@mui/material";
 
 const PatientDetailsModal = ({ open, onClose, patientData }) => {
-    console.log("patientData",patientData)
   if (!patientData) return null; // Ensure there's data before rendering
 
   return (

@@ -5,26 +5,23 @@ import { Paper, Tooltip, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import FilterAppointmentData from "@/component/filterAppointmentData/filterAppointmentData";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import EditCalendarOutlinedIcon from "@mui/icons-material/EditCalendarOutlined";
 import PatientDetailsModal from "@/component/modals/patientDetailsModal";
 import EditAppointment from "@/component/modals/editAppointmentModal";
-import AcceptAppointmentModal from "@/component/modals/acceptAppoitmentModal";
 import { routesUrl } from "@/utils/pagesurl";
 import { useRouter } from "next/navigation";
 import UserContext from "@/context/UserContext";
+import PendingIcon from "@mui/icons-material/Pending";
 
-
-export default function TableData({ open }) {
-  const { selectedPatient,setSelectedPatient } = useContext(UserContext);
-  
+export default function TableData() {
+  const { selectedPatient, setSelectedPatient } = useContext(UserContext);
+  const [editedRowId, setEditedRowId] = useState(null);
   const { data: session } = useSession();
   const [localData, setLocalData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
+  const paginationModel = { page: 0, pageSize: 5 };
 
   useEffect(() => {
     if (session) {
@@ -48,21 +45,22 @@ export default function TableData({ open }) {
     setFilteredData(filterDataDate);
   };
 
-  const handleActionClick = (patientData, action) => {
-    console.log(`Action: ${action}`, patientData);
-    setSelectedPatient({ ...patientData, action });
-    setIsModalOpen(false); // Close the modal on action click
-  };
-
-  const handleRowClick = (params) => {
-    setSelectedPatient(params.row); // Set the selected patient's data
-    setIsModalOpen(true); // Open the modal
-  };
-
-  const handleEdit = () => {
+  // edit row
+  const handleEdit = (patientData) => {
+    setEditedRowId(patientData.index);
+    setSelectedPatient({ ...patientData });
     setIsEditModalOpen(true);
   };
- const router=useRouter();
+
+  const handleEditAction = (data) => {
+    const updatedData = localData.map((row) =>
+      row.index === editedRowId ? { ...row, action: data.action } : row
+    );
+    setLocalData(updatedData);
+    setFilteredData(updatedData);
+    localStorage.setItem("slotForm", JSON.stringify(updatedData)); // Save updated data to localStorage
+  };
+  const router = useRouter();
 
   const columns = [
     { field: "index", headerName: "ID", width: 30 },
@@ -73,14 +71,14 @@ export default function TableData({ open }) {
     {
       field: "patientDescription",
       headerName: "Patient Description",
-      width: 175,
+      width: 160,
       renderCell: (params) => (
         <div
           className="patient-descri"
           style={{ cursor: "pointer" }}
           onClick={() => {
             setSelectedPatient(params.row); // Set the selected patient's data
-           router.push(routesUrl.patientDetails) 
+            router.push(routesUrl.patientDetails);
           }}
         >
           {params.row.patientDescription}
@@ -89,69 +87,68 @@ export default function TableData({ open }) {
     },
     { field: "mobile", headerName: "Mobile Number", width: 150 },
     { field: "bloodGroup", headerName: "Blood Group", width: 70 },
-    { field: "email", headerName: "Email", width: 160 },
+    { field: "email", headerName: "Email", width: 140 },
     {
       field: "action",
       headerName: "Action",
-      width: 150,
-      renderCell: (params) => (
-        <>
-          <Tooltip title="Accept">
-            <CheckCircleOutlineIcon
-              style={{
-                width: "40px",
-                height: "35px",
-                color: "rgb(68 68 68)",
-                border: "1px solid rgb(25 184 51)",
-                borderRadius: "4px",
-                padding: "5px 10px",
-                marginRight: "5px",
-                cursor: "pointer",
-              }}
-              className="action-icon"
-              onClick={() => {
-                setSelectedPatient(params.row); // Set the selected patient's data
-                setIsAcceptModalOpen(true); // Open the modal
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="Reject">
-            <CancelOutlinedIcon
-              style={{
-                width: "40px",
-                height: "35px",
-                color: "rgb(68 68 68)",
-                border: "1px solid #ec4747",
-                borderRadius: "4px",
-                padding: "5px 10px",
-                marginRight: "5px",
-                cursor: "pointer",
-              }}
-              className="cancel-icon"
-              onClick={() => handleActionClick(params.row, "cancel")}
-            />
-          </Tooltip>
-          <Tooltip title="Edit">
-            <EditCalendarOutlinedIcon
-              style={{
-                width: "40px",
-                height: "35px",
-                color: "rgb(68 68 68)",
-                border: "1px solid rgb(25 184 51)",
-                borderRadius: "4px",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-              className="action-icon"
-              onClick={handleEdit}
-            />
-          </Tooltip>
-        </>
-      ),
+      width: 160,
+      renderCell: (params) => {
+        const isAccepted = params.row.action === "Accept";
+        const isPending = params.row.action === "Pending";
+        const isRowEditable = params.row.index === editedRowId;
+        return (
+          <>
+            <Tooltip title="Accept">
+              <CheckCircleOutlineIcon
+                style={{
+                  width: "40px",
+                  height: "35px",
+                  color: isAccepted ? "white" : "rgb(68 68 68)",
+                  border: `1px solid ${isAccepted ? "green" : "rgb(25 184 51)"}`,
+                  borderRadius: "4px",
+                  padding: "5px 10px",
+                  marginRight: "5px",
+                  cursor: isRowEditable ? "pointer" : "not-allowed",
+                  backgroundColor: isAccepted
+                    ? "rgb(38, 133, 50)"
+                    : "transparent",
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Pending">
+              <PendingIcon
+                style={{
+                  width: "40px",
+                  height: "35px",
+                  color: isPending ? "white" : "rgb(68 68 68)",
+                  border: `1px solid ${isPending ? "#ec4747" : "rgb(25 184 51)"}`,
+                  borderRadius: "4px",
+                  padding: "5px 10px",
+                  marginRight: "5px",
+                  cursor: isRowEditable ? "pointer" : "not-allowed",
+                  backgroundColor: isPending ? "#ec4747" : "transparent",
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Edit">
+              <EditCalendarOutlinedIcon
+                style={{
+                  width: "40px",
+                  height: "35px",
+                  color: "rgb(68 68 68)",
+                  border: "1px solid rgb(25 184 51)",
+                  borderRadius: "4px",
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleEdit(params.row)}
+              />
+            </Tooltip>
+          </>
+        );
+      },
     },
   ];
-
-  const paginationModel = { page: 0, pageSize: 5 };
 
   return (
     <>
@@ -182,7 +179,6 @@ export default function TableData({ open }) {
             "& .MuiDataGrid-row:hover": {
               cursor: "pointer",
             },
-           
           }}
         />
       </Paper>
@@ -193,15 +189,11 @@ export default function TableData({ open }) {
         onClose={() => setIsModalOpen(false)}
         patientData={selectedPatient}
       />
+      {/* Edit appointment (accept and pending) */}
       <EditAppointment
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        // patientData={selectedPatient}
-      />
-      <AcceptAppointmentModal
-        open={isAcceptModalOpen}
-        onClose={() => setIsAcceptModalOpen(false)}
-        patientData={selectedPatient}
+        setEditAction={handleEditAction} // Pass the handler for editing
       />
     </>
   );
