@@ -21,7 +21,7 @@ export default function TableData() {
   const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   useEffect(() => {
     if (session) {
@@ -173,7 +173,7 @@ export default function TableData() {
             row.index || row.email || `${row.fName}-${row.lName}`
           }
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[10, 20]}
           sx={{
             border: 0,
             "& .MuiDataGrid-row:hover": {
