@@ -31,8 +31,8 @@ const Login = () => {
       if (res.error) {
         return errorMsg('Invalid credentials'||res.error );
       } else {
+        successMsg("Login Successfully");
         router.push(routesUrl.Dashboard); 
-        return successMsg("Login Successfully");
       }
     } catch (error) {
       return errorMsg("Login Error");

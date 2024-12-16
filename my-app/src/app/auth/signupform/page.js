@@ -57,8 +57,8 @@ const SignUpForm = () => {
         if (res.error) {
           return errorMsg("Invalid credentials");
         } else {
+         successMsg("Login Successfully");
           router.replace(routesUrl.Dashboard);
-          return successMsg("Login Successfully");
         }
       } catch (error) {
         return errorMsg("Login Error");
