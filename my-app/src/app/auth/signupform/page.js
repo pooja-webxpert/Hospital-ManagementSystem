@@ -65,7 +65,7 @@ const SignUpForm = () => {
       }
     };
     loginuser();
-  }, [user]);
+  }, [user,router]);
 
   return (
     <>

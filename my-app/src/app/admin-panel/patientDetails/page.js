@@ -10,7 +10,7 @@ export default function PatientDetailsPage() {
   useEffect(() => {
     const getData = JSON.parse(localStorage.getItem("selectedPatient"));
     setSelectedPatient(getData);
-  }, []);
+  });
 
   return (
     <div>
