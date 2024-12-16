@@ -18,7 +18,6 @@ export default function Home() {
     }
   };
   
-
   return (
     <>
       <img className="w-full h-5/6 absolute" src="/background-image.jpg" />
